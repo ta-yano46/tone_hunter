@@ -33,6 +33,21 @@ jobs:
       - name: Install CocoaPods dependencies
         run: cd ios && bundle exec pod install
 
+      - name: Set up App Store Connect API key
+        run: |
+          mkdir -p ~/private_keys
+          echo "${{ secrets.APP_STORE_PRIVATE_KEY }}" > ~/private_keys/AuthKey_${{ secrets.APP_STORE_KEY_ID }}.p8
+
+      - name: Build with Fastlane
+        env:
+          APP_STORE_KEY_ID: ${{ secrets.APP_STORE_KEY_ID }}
+          APP_STORE_ISSUER_ID: ${{ secrets.APP_STORE_ISSUER_ID }}
+        run: |
+          fastlane run validate_app \
+            api_key_path:~/private_keys/AuthKey_${APP_STORE_KEY_ID}.p8 \
+            api_key_id:$APP_STORE_KEY_ID \
+            issuer_id:$APP_STORE_ISSUER_ID
+
       # - name: Build iOS app
       #   run: |
       #     cd ios
