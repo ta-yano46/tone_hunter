@@ -1,14 +1,17 @@
 default_platform(:ios)
 
-platform :ios do
-  lane :build_only do
-    build_app(
-      workspace: "tone_hunter.xcworkspace",
-      scheme: "tone_hunter",
-      export_method: "app-store",
-      output_directory: "../build/ipa",
-      output_name: "tone_hunter.ipa"
-    )
-  end
+lane :build_only do
+  gym(
+    scheme: "YourSchemeName",
+    workspace: "tone_hunter.xcworkspace",
+    export_method: "app-store",
+    export_options: {
+      provisioningProfiles: {
+        "org.reactjs.native.example.tone-hunter" => "ToneHunter Release Profile"
+      }
+    },
+    clean: true,
+    silent: false,
+    xcodebuild_args: ["-allowProvisioningUpdates"]
+  )
 end
-
