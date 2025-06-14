@@ -76,3 +76,4 @@ yarn-error.log
 
 ## user added
 /package-lock.json
+/Gemfile.lock

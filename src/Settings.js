@@ -116,7 +116,7 @@ const SettingsScreen = ({ navigation }) => {
             showOverlay()
         } else {
             setRangeMode(v.name);
-            updateToneRange(v.name , v.minTone, v.maxTone)
+            updateToneRange(v.name, v.minTone, v.maxTone)
         }
     }
 
