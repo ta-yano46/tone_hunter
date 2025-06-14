@@ -53,6 +53,9 @@ jobs:
             -s -k "${{secrets.IOS_DIST_CERT_PASSWORD}}" \
             ~/Library/Keychains/build.keychain-db
 
+          echo "Confirm"
+          security find-identity -v -p codesigning ~/Library/Keychains/build.keychain-db
+
           echo "✅ Keychain setup complete."
 
       - name: Install Node.js
@@ -74,7 +77,16 @@ jobs:
       - name: Install CocoaPods dependencies
         run: cd ios && bundle exec pod install
 
+
       - name: Build IPA with Fastlane
+        env:
+          MATCH_PASSWORD: ${{ secrets.IOS_DIST_CERT_PASSWORD }}
+          APPLE_PROVISIONING_PROFILE_SPECIFIER: "ToneHunter Release Profile"
+          APPLE_DEVELOPMENT_TEAM: "599S4ZJU32"
+          CODE_SIGN_IDENTITY: "Apple Distribution"
+          PROVISIONING_PROFILE_SPECIFIER: "ToneHunter Release Profile"
+          DEVELOPMENT_TEAM: "599S4ZJU32"
+          PRODUCT_BUNDLE_IDENTIFIER: "org.reactjs.native.example.tone-hunter"
         run: |
           cd ios
           bundle exec fastlane build_only

@@ -8,7 +8,9 @@ lane :build_only do
     export_options: {
       provisioningProfiles: {
         "org.reactjs.native.example.tone-hunter" => "ToneHunter Release Profile"
-      }
+      },
+      signingStyle: "manual",
+      teamID: ENV["DEVELOPMENT_TEAM"]
     },
     clean: true,
     silent: false,
