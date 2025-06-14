@@ -48,7 +48,11 @@ const ResultScreen = ({ navigation }) => {
                         <Text style={styles.rankText}>{"🥇 1st (" + first.order + ")"}</Text>
                         <Text>{util.midiToNoteName(first.targetTone)} → {util.midiToNoteName(util.frequencyToMidiNote(first.measuredPitch))}</Text>
                         <Text>{`cent: ${first.diffCent.toFixed(2)}`}</Text>
-                        <Image source={{ uri: first.photoPath }} style={styles.firstPhoto} />
+                        {first.photoPath ? (
+                            <Image source={{ uri: first.photoPath }} style={styles.firstPhoto} />
+                        ) :
+                            <Image source={dummyPhoto} style={styles.firstPhoto} />
+                        }
                     </View>
                 )}
 
@@ -59,7 +63,11 @@ const ResultScreen = ({ navigation }) => {
                                 <Text style={styles.rankText}>
                                     {(i === 0 ? '🥈 2nd' : '🥉 3rd') + " (" + v.order + ")"}
                                 </Text>
-                                <Image source={{ uri: v.photoPath }} style={styles.mediumPhoto} />
+                                {v.photoPath ? (
+                                    <Image source={{ uri: v.photoPath }} style={styles.mediumPhoto} />
+                                ) : (
+                                    <Image source={dummyPhoto} style={styles.mediumPhoto} />
+                                )}
                             </View>
                         ))}
                     </View>
@@ -73,7 +81,7 @@ const ResultScreen = ({ navigation }) => {
                                 {
                                     v.photoPath ? (
                                         <Image source={{ uri: v.photoPath }} style={styles.otherPhoto} />
-                                    ) : (<Image source={{ dummyPhoto }} style={styles.otherPhoto} />)
+                                    ) : (<Image source={dummyPhoto } style={styles.otherPhoto} />)
                                 }
                             </View>
                         ))}
