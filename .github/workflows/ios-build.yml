@@ -17,14 +17,18 @@ jobs:
       - name: Decode provisioning profile
         run: |
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles/
+          echo "$IOS_PROVISIONING_PROFILE"
           echo "$IOS_PROVISIONING_PROFILE" | base64 -d > ~/Library/MobileDevice/Provisioning\ Profiles/tone-hunter.mobileprovision
           echo "mobileprovision md5"
+          cat ~/Library/MobileDevice/Provisioning\ Profiles/tone-hunter.mobileprovision | wc
           md5 ~/Library/MobileDevice/Provisioning\ Profiles/tone-hunter.mobileprovision
 
       - name: Decode certificate
         run: |
+          echo "$IOS_DIST_CERT"
           echo "$IOS_DIST_CERT" | base64 -d > ios_dist.p12
           echo "p12 md5"
+          cat ios_dist.p12 | wc
           md5 ios_dist.p12
 
       - name: Import certificate
