@@ -45,6 +45,7 @@ jobs:
                      -scheme tone_hunter \
                      -sdk iphoneos \
                      -configuration Release \
+                     -allowProvisioningUpdates \
                      -archivePath build/tone_hunter.xcarchive \
                      archive
 
