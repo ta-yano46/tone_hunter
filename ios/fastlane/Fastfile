@@ -12,6 +12,6 @@ lane :build_only do
     },
     clean: true,
     silent: false,
-    xcodebuild_args: ["-allowProvisioningUpdates"]
+    xcargs: "-allowProvisioningUpdates"
   )
 end
