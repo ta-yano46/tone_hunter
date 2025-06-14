@@ -2,7 +2,7 @@ default_platform(:ios)
 
 lane :build_only do
   gym(
-    scheme: "YourSchemeName",
+    scheme: "tone_hunter",
     workspace: "tone_hunter.xcworkspace",
     export_method: "app-store",
     export_options: {
