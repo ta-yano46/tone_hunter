@@ -17,16 +17,14 @@ jobs:
       - name: Decode provisioning profile
         run: |
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles/
-          echo "$IOS_PROVISIONING_PROFILE"
-          echo "$IOS_PROVISIONING_PROFILE" | base64 -d > ~/Library/MobileDevice/Provisioning\ Profiles/tone-hunter.mobileprovision
+          echo "${{secrets.IOS_PROVISIONING_PROFILE}}" | base64 -d > ~/Library/MobileDevice/Provisioning\ Profiles/tone-hunter.mobileprovision
           echo "mobileprovision md5"
           cat ~/Library/MobileDevice/Provisioning\ Profiles/tone-hunter.mobileprovision | wc
           md5 ~/Library/MobileDevice/Provisioning\ Profiles/tone-hunter.mobileprovision
 
       - name: Decode certificate
         run: |
-          echo "$IOS_DIST_CERT"
-          echo "$IOS_DIST_CERT" | base64 -d > ios_dist.p12
+          echo "${{secrets.IOS_DIST_CERT}}" | base64 -d > ios_dist.p12
           echo "p12 md5"
           cat ios_dist.p12 | wc
           md5 ios_dist.p12
@@ -34,19 +32,19 @@ jobs:
       - name: Import certificate
         run: |
           echo "🔐 Creating keychain..."
-          security create-keychain -p "$IOS_DIST_CERT_PASSWORD" build.keychain
+          security create-keychain -p "${{secrets.IOS_DIST_CERT_PASSWORD}}" build.keychain
 
           echo "🔑 Setting as default keychain..."
           security default-keychain -s build.keychain
 
           echo "🔓 Unlocking keychain..."
-          security unlock-keychain -p "$IOS_DIST_CERT_PASSWORD" build.keychain
+          security unlock-keychain -p "${{secrets.IOS_DIST_CERT_PASSWORD}}" build.keychain
 
           echo "📦 Importing certificate..."
-          security import ios_dist.p12 -k build.keychain -P "$IOS_DIST_CERT_PASSWORD" -T /usr/bin/codesign
+          security import ios_dist.p12 -k build.keychain -P "${{secrets.IOS_DIST_CERT_PASSWORD}}" -T /usr/bin/codesign
 
           echo "🧩 Setting key partition list..."
-          security set-key-partition-list -S apple-tool:,apple: -s -k "$IOS_DIST_CERT_PASSWORD" build.keychain
+          security set-key-partition-list -S apple-tool:,apple: -s -k "${{secrets.IOS_DIST_CERT_PASSWORD}}" build.keychain
 
           echo "✅ Keychain setup complete."
 
