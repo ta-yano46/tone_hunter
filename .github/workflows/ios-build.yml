@@ -53,6 +53,8 @@ jobs:
             -s -k "${{secrets.IOS_DIST_CERT_PASSWORD}}" \
             ~/Library/Keychains/build.keychain-db
 
+          security list-keychains -s ~/Library/Keychains/build.keychain-db
+
           echo "Confirm"
           security find-identity -v -p codesigning ~/Library/Keychains/build.keychain-db
 
