@@ -14,5 +14,6 @@ lane :build_only do
     },
     clean: true,
     silent: false,
+    xcargs: "-verbose",
   )
 end

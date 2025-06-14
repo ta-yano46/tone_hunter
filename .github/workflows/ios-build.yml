@@ -77,8 +77,15 @@ jobs:
         run: bundle install
 
       - name: Install CocoaPods dependencies
-        run: cd ios && bundle exec pod install
+        run: |
+          rm -rf ~/Library/Developer/Xcode/DerivedData/*
+          rm -rf ios/Pods
+          cd ios
+          bundle exec pod install
 
+      - name: Check codesign
+        run: |
+          codesign -vvvv --dryrun --sign "Apple Distribution: Takayuki Yano" ios/Pods/SomeFramework.framework
 
       - name: Build IPA with Fastlane
         env:
