@@ -6,7 +6,7 @@ platform :ios do
       workspace: "tone_hunter.xcworkspace",
       scheme: "tone_hunter",
       export_method: "app-store",
-      output_directory: "./build/ipa",
+      output_directory: "../build/ipa",
       output_name: "tone_hunter.ipa"
     )
   end
