@@ -319,8 +319,11 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
+				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 599S4ZJU32;
+				DEVELOPMENT_TEAM = "";
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = 599S4ZJU32;
 				INFOPLIST_FILE = tone_hunter/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Tone Hunter";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.music-games";
@@ -337,6 +340,8 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = tone_hunter;
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "ToneHunter Release Profile";
 				SWIFT_OBJC_BRIDGING_HEADER = "tone_hunter/Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
