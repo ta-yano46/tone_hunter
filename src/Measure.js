@@ -1,7 +1,7 @@
-import { useFocusEffect, useIsFocused } from '@react-navigation/native';
+import { useIsFocused } from '@react-navigation/native';
 import React, { useEffect, useState, useRef } from 'react';
-import { View, Text, Button, StyleSheet, PermissionsAndroid, Platform, TouchableOpacity } from 'react-native';
-import { Camera, useCameraDevice, PhotoFile } from 'react-native-vision-camera';
+import { View, Text, Button, StyleSheet, TouchableOpacity } from 'react-native';
+import { Camera, useCameraDevice } from 'react-native-vision-camera';
 import { NativeEventEmitter, NativeModules } from 'react-native';
 import util from './utils';
 import db from './db';

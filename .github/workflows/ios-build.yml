@@ -40,6 +40,7 @@ jobs:
 
       - name: Archive app
         run: |
+          cd ios
           xcodebuild -workspace tone_hunter.xcworkspace \
                      -scheme tone_hunter \
                      -sdk iphoneos \
@@ -49,6 +50,7 @@ jobs:
 
       - name: Export IPA
         run: |
+          cd ios
           xcodebuild -exportArchive \
                      -archivePath build/tone_hunter.xcarchive \
                      -exportOptionsPlist ExportOptions.plist \
@@ -58,4 +60,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: tone_hunter.ipa
-          path: build/ipa/tone_hunter.ipa
+          path: ios/build/ipa/tone_hunter.ipa

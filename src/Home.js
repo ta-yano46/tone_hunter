@@ -1,5 +1,5 @@
-import { useFocusEffect, useIsFocused } from '@react-navigation/native';
-import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import { useIsFocused } from '@react-navigation/native';
+import React, { useEffect, useState, useMemo } from 'react';
 import { Modal, Alert, Button, Text, View, StyleSheet, ImageBackground, TouchableOpacity } from 'react-native';
 import { Camera } from 'react-native-vision-camera';
 import { Picker } from '@react-native-picker/picker'
