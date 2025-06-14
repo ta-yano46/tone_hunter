@@ -43,7 +43,8 @@ jobs:
           APP_STORE_KEY_ID: ${{ secrets.APP_STORE_KEY_ID }}
           APP_STORE_ISSUER_ID: ${{ secrets.APP_STORE_ISSUER_ID }}
         run: |
-          fastlane run validate_app \
+          cd ios
+          bundle exec fastlane run validate_app \
             api_key_path:~/private_keys/AuthKey_${APP_STORE_KEY_ID}.p8 \
             api_key_id:$APP_STORE_KEY_ID \
             issuer_id:$APP_STORE_ISSUER_ID
