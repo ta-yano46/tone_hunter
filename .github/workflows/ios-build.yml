@@ -35,6 +35,7 @@ jobs:
 
       - name: Decode provisioning profile
         run: |
+          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles/
           echo "$IOS_PROVISIONING_PROFILE" | base64 -d > ~/Library/MobileDevice/Provisioning\ Profiles/tone-hunter.mobileprovision
 
       - name: Decode certificate
