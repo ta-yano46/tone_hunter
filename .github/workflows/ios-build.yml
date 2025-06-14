@@ -14,6 +14,38 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Decode provisioning profile
+        run: |
+          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles/
+          echo "$IOS_PROVISIONING_PROFILE" | base64 -d > ~/Library/MobileDevice/Provisioning\ Profiles/tone-hunter.mobileprovision
+          echo "mobileprovision md5"
+          md5 ~/Library/MobileDevice/Provisioning\ Profiles/tone-hunter.mobileprovision
+
+      - name: Decode certificate
+        run: |
+          echo "$IOS_DIST_CERT" | base64 -d > ios_dist.p12
+          echo "p12 md5"
+          md5 ios_dist.p12
+
+      - name: Import certificate
+        run: |
+          echo "🔐 Creating keychain..."
+          security create-keychain -p "$IOS_DIST_CERT_PASSWORD" build.keychain
+
+          echo "🔑 Setting as default keychain..."
+          security default-keychain -s build.keychain
+
+          echo "🔓 Unlocking keychain..."
+          security unlock-keychain -p "$IOS_DIST_CERT_PASSWORD" build.keychain
+
+          echo "📦 Importing certificate..."
+          security import ios_dist.p12 -k build.keychain -P "$IOS_DIST_CERT_PASSWORD" -T /usr/bin/codesign
+
+          echo "🧩 Setting key partition list..."
+          security set-key-partition-list -S apple-tool:,apple: -s -k "$IOS_DIST_CERT_PASSWORD" build.keychain
+
+          echo "✅ Keychain setup complete."
+
       - name: Install Node.js
         uses: actions/setup-node@v4
         with:
@@ -32,35 +64,6 @@ jobs:
 
       - name: Install CocoaPods dependencies
         run: cd ios && bundle exec pod install
-
-      - name: Decode provisioning profile
-        run: |
-          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles/
-          echo "$IOS_PROVISIONING_PROFILE" | base64 -d > ~/Library/MobileDevice/Provisioning\ Profiles/tone-hunter.mobileprovision
-
-      - name: Decode certificate
-        run: |
-          echo "$IOS_DIST_CERT" | base64 -d > ios_dist.p12
-
-      - name: Import certificate
-        run: |
-          echo "🔐 Creating keychain..."
-          security create-keychain -p "$IOS_DIST_CERT_PASSWORD" build.keychain
-
-          echo "🔑 Setting as default keychain..."
-          security default-keychain -s build.keychain
-
-          echo "🔓 Unlocking keychain..."
-          security unlock-keychain -p "$IOS_DIST_CERT_PASSWORD" build.keychain
-
-          echo "📦 Importing certificate..."
-          security import "${{ github.workspace }}/ios_dist.p12" \
-            -k build.keychain -P "$IOS_DIST_CERT_PASSWORD" -T /usr/bin/codesign
-
-          echo "🧩 Setting key partition list..."
-          security set-key-partition-list -S apple-tool:,apple: -s -k "$IOS_DIST_CERT_PASSWORD" build.keychain
-
-          echo "✅ Keychain setup complete."
 
       - name: Build IPA with Fastlane
         run: |
