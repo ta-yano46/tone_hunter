@@ -111,7 +111,11 @@ const MeasureScreen = ({ navigation, route }) => {
     return (
         <View style={styles.container}>
             <View style={styles.cameraWrapper}>
-                <Camera ref={cameraRef} style={styles.camera} device={device} isActive={true} photo={true} />
+                {photo ? (
+                    <Camera ref={cameraRef} style={styles.camera} device={device} isActive={true} photo={true} />
+                ) : (
+                    <View style={styles.camera} />
+                )}
                 <Text style={styles.orderText}>order: {order}</Text>
                 <Text style={styles.targetText}>{"" + util.midiToNoteName(selectedTone)}</Text>
                 <TouchableOpacity
