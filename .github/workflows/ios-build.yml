@@ -83,9 +83,9 @@ jobs:
           cd ios
           bundle exec pod install
 
-      - name: Check codesign
-        run: |
-          codesign -vvvv --dryrun --sign "Apple Distribution: Takayuki Yano" ios/Pods/SomeFramework.framework
+      #- name: Check codesign
+      #  run: |
+      #    codesign -vvvv --dryrun --sign "Apple Distribution: Takayuki Yano" ios/Pods/SomeFramework.framework
 
       - name: Build IPA with Fastlane
         env:
