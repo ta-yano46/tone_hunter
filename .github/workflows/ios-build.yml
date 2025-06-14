@@ -87,6 +87,10 @@ jobs:
       #  run: |
       #    codesign -vvvv --dryrun --sign "Apple Distribution: Takayuki Yano" ios/Pods/SomeFramework.framework
 
+      - name: Pod Script Check
+        run: |
+          cat "ios/Pods/Target Support Files/Pods-tone_hunter/Pods-tone_hunter-frameworks.sh"
+
       - name: Build IPA with Fastlane
         env:
           MATCH_PASSWORD: ${{ secrets.IOS_DIST_CERT_PASSWORD }}
