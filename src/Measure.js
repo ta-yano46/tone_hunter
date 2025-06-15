@@ -86,12 +86,12 @@ const MeasureScreen = ({ navigation, route }) => {
                 return;
             }
 
-            const photo = await cameraRef.current.takePhoto({
+            const taken = await cameraRef.current.takePhoto({
                 flash: 'off',
             });
 
-            console.log(`order:${o} Photo saved at: ${photo.path}`);
-            db.updatePhotoPath(o, photo.path)
+            console.log(`order:${o} Photo saved at: ${taken.path}`);
+            db.updatePhotoPath(o, taken.path)
         } catch (e) {
             console.log(`Failed to take photo: ${e.message}`);
         }
