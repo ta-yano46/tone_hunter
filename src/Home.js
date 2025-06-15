@@ -122,10 +122,10 @@ const HomeScreen = ({ navigation }) => {
     const play_sample = (target) => {
         if (playSample) {
             const Mic = require('./MicCheck').default
-            Mic.play_sample_sound(tempTone)
+            Mic.play_sample_sound(target)
             setTimeout(() => {
                 Mic.stop_sample_sound()
-            }, 3000)
+            }, 1500)
         }
     }
 
@@ -146,7 +146,7 @@ const HomeScreen = ({ navigation }) => {
         const tone = Math.floor(Math.random() * (maxTone - minTone + 1)) + minTone
         setSelectedTone(tone)
         fs.save_settings("last_tone", tone)
-        play_sample(tempTone)
+        play_sample(tone)
     }
 
     return (

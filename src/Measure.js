@@ -117,13 +117,12 @@ const MeasureScreen = ({ navigation, route }) => {
                     <View style={styles.camera} />
                 )}
                 <Text style={styles.orderText}>order: {order}</Text>
-                <Text style={styles.targetText}>{"" + util.midiToNoteName(selectedTone)}</Text>
-                <TouchableOpacity
-                    style={styles.nextButton}
+                <Text style={[styles.targetText, !photo && { color: '#222' }
+                ]} >{"" + util.midiToNoteName(selectedTone)}</Text>
+                <TouchableOpacity style={styles.nextButton}
                     onPress={() => {
                         to_next_person()
-                    }}
-                >
+                    }} >
                     <Text style={styles.nextButtonText}>Measure</Text>
                 </TouchableOpacity>
 

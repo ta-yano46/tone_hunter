@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Button } from 'react-native';
+import { TouchableOpacity, Text, StyleSheet } from 'react-native';
 
 /**
  * Delay button component
@@ -30,12 +31,37 @@ const DelayButton = ({ onPress, delay = 10 }) => {
   }, [delay]);
 
   return (
-    <Button
-      title={enabled ? 'Next Game' : `Wait ${count}s`}
+    <TouchableOpacity
       onPress={enabled ? onPress : null}
-      disabled={!enabled}
-    />
+      style={[styles.button, !enabled && styles.buttonDisabled]}
+      activeOpacity={enabled ? 0.7 : 1}
+    >
+      <Text style={[styles.buttonText, !enabled && styles.buttonTextDisabled]}>
+        {enabled ? 'Next Game' : `Wait ${count}s`}
+      </Text>
+    </TouchableOpacity>
   );
 };
 
+const styles = StyleSheet.create({
+  button: {
+    backgroundColor: '#4CAF50',
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginTop: 20,
+  },
+  buttonDisabled: {
+    backgroundColor: '#ccc',
+  },
+  buttonText: {
+    color: 'white',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  buttonTextDisabled: {
+    color: '#666',
+  },
+});
 export default DelayButton;

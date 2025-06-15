@@ -41,7 +41,7 @@ const ResultScreen = ({ navigation }) => {
 
     return (
         <>
-            <Text> Result</Text>
+            <Text style={styles.title}> Result</Text>
             <View style={styles.container}>
                 {first && (
                     <View style={styles.firstPlace}>
@@ -81,19 +81,25 @@ const ResultScreen = ({ navigation }) => {
                                 {
                                     v.photoPath ? (
                                         <Image source={{ uri: v.photoPath }} style={styles.otherPhoto} />
-                                    ) : (<Image source={dummyPhoto } style={styles.otherPhoto} />)
+                                    ) : (<Image source={dummyPhoto} style={styles.otherPhoto} />)
                                 }
                             </View>
                         ))}
                     </View>
                 )}
             </View>
-            <DelayButton onPress={() => navigation.navigate('Home')} />
+            <DelayButton onPress={() => navigation.navigate('Home')} delay={results.length < 2 ? 0 : 10} />
         </>
     );
 };
 
 const styles = StyleSheet.create({
+    title: {
+        fontSize: 28,
+        fontWeight: 'bold',
+        textAlign: 'center',
+        marginVertical: 12,
+    },
     photo: {
         width: 100,
         height: 100,

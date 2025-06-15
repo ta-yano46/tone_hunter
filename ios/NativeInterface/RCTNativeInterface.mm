@@ -273,61 +273,74 @@ using namespace facebook;
   return yin_get_pitch(buf, length, 44100);
 }
 
-  - (float)midi2freq:(int)midi {
-    return 440.0 * powf(2.0, (midi - 69) / 12.0);
+- (float)midi2freq:(int)midi {
+  return 440.0 * powf(2.0, (midi - 69) / 12.0);
+}
+- (void)playSample:(long)midi {
+  if (isPlaying) {
+    [self stopSample];
   }
-  - (void)playSample:(int)midi {
-    if (isPlaying) {
-      [self stopSample];
-    }
-    
-    float sampleRate = 44100.0;
-    float frequency = [self midi2freq:midi];
-    phaseIncrement = 2.0 * M_PI * frequency / sampleRate;
-
-    NSLog(@"playSample %f", frequency);
-    
-    sourceNode = [[AVAudioSourceNode alloc]
-                  initWithRenderBlock:^OSStatus(BOOL *isSilence,
-                                                const AudioTimeStamp *timestamp,
-                                                AVAudioFrameCount frameCount,
-                                                AudioBufferList *outputData) {
-      for (int i = 0; i < outputData->mNumberBuffers; ++i) {
-        float *buf = (float *)outputData->mBuffers[i].mData;
-        for (NSUInteger frame = 0; frame < frameCount; ++frame) {
-          buf[frame] = sinf(phase);
-          phase += phaseIncrement;
-          if (phase > 2.0 * M_PI) {
-            phase -= 2.0 * M_PI;
-          }
+  NSError *sessionError = nil;
+  [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayAndRecord
+                                   withOptions:AVAudioSessionCategoryOptionDefaultToSpeaker
+                                         error:&sessionError];
+  if (sessionError) {
+    NSLog(@"AVAudioSession setCategory error: %@", sessionError);
+  }
+  [[AVAudioSession sharedInstance] setActive:YES error:&sessionError];
+  if (sessionError) {
+    NSLog(@"AVAudioSession setActive error: %@", sessionError);
+  }
+  
+  float sampleRate = 44100.0;
+  float frequency = [self midi2freq:midi];
+  phaseIncrement = 2.0 * M_PI * frequency / sampleRate;
+  
+  NSLog(@"playSample %f", frequency);
+  
+  __weak __typeof__(self) weakSelf = self;
+  sourceNode = [[AVAudioSourceNode alloc]
+                initWithRenderBlock:^OSStatus(BOOL *isSilence,
+                                              const AudioTimeStamp *timestamp,
+                                              AVAudioFrameCount frameCount,
+                                              AudioBufferList *outputData) {
+    __strong __typeof__(weakSelf) self = weakSelf;
+    for (int i = 0; i < outputData->mNumberBuffers; ++i) {
+      float *buf = (float *)outputData->mBuffers[i].mData;
+      for (NSUInteger frame = 0; frame < frameCount; ++frame) {
+        buf[frame] = sinf(self->phase);
+        self->phase += self->phaseIncrement;
+        if (self->phase > 2.0 * M_PI) {
+          self->phase -= 2.0 * M_PI;
         }
       }
-      return noErr;
-    }];
-    
-    AVAudioFormat *format = [[AVAudioFormat alloc] initStandardFormatWithSampleRate:sampleRate channels:1];
-    [_audioEngine attachNode:sourceNode];
-    [_audioEngine connect:sourceNode to:_audioEngine.mainMixerNode format:format];
-    
-    NSError *error = nil;
-    if (![_audioEngine isRunning]) {
-      [_audioEngine startAndReturnError:&error];
-      if (error) {
-        NSLog(@"Engine start error: %@", error);
-        return;
-      }
     }
-    
-    isPlaying = YES;
+    return noErr;
+  }];
+  
+  AVAudioFormat *format = [[AVAudioFormat alloc] initStandardFormatWithSampleRate:sampleRate channels:1];
+  [_audioEngine attachNode:sourceNode];
+  [_audioEngine connect:sourceNode to:_audioEngine.mainMixerNode format:format];
+  
+  NSError *error = nil;
+  if (![_audioEngine isRunning]) {
+    [_audioEngine startAndReturnError:&error];
+    if (error) {
+      NSLog(@"Engine start error: %@", error);
+      return;
+    }
   }
-  - (void)stopSample {
-    if (!isPlaying) return;
-    
-    [_audioEngine disconnectNodeInput:sourceNode];
-    [_audioEngine detachNode:sourceNode];
-    sourceNode = nil;
-    isPlaying = NO;
-  }
+  
+  isPlaying = YES;
+}
+- (void)stopSample {
+  if (!isPlaying) return;
+  
+  [_audioEngine disconnectNodeInput:sourceNode];
+  [_audioEngine detachNode:sourceNode];
+  sourceNode = nil;
+  isPlaying = NO;
+}
 
 + (NSString *)moduleName {
   return @"NativeInterface";
