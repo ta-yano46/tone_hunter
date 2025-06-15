@@ -77,7 +77,7 @@ const ResultScreen = ({ navigation }) => {
                     <View style={styles.othersContainer}>
                         {others.map((v, i) => (
                             <View key={v.order} style={styles.otherItem}>
-                                <Text>{`${i + 4}位: (${v.order})`}</Text>
+                                <Text>{`${i + 4}th: (${v.order})`}</Text>
                                 {
                                     v.photoPath ? (
                                         <Image source={{ uri: v.photoPath }} style={styles.otherPhoto} />

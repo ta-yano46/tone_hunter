@@ -37,6 +37,9 @@ export interface Spec extends TurboModule {
    * Test function (implementation-defined).
    */
   test(): void;
+
+  playSample(tone: Int32): void;
+  stopSample(): void;
 }
 
 /**

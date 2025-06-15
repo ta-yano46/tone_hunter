@@ -87,12 +87,12 @@ jobs:
       #  run: |
       #    codesign -vvvv --dryrun --sign "Apple Distribution: Takayuki Yano" ios/Pods/SomeFramework.framework
 
-      - name: Pod Script Check
-        run: |
-          cat "ios/Pods/Target Support Files/Pods-tone_hunter/Pods-tone_hunter-frameworks.sh"
-          cp github.Pods-tone_hunter-frameworks.sh "ios/Pods/Target Support Files/Pods-tone_hunter/Pods-tone_hunter-frameworks.sh"
-          cat -n "ios/Pods/Target Support Files/Pods-tone_hunter/Pods-tone_hunter-frameworks.sh"
-          chmod +x "ios/Pods/Target Support Files/Pods-tone_hunter/Pods-tone_hunter-frameworks.sh"
+      # - name: Pod Script Check
+      #   run: |
+      #     cat "ios/Pods/Target Support Files/Pods-tone_hunter/Pods-tone_hunter-frameworks.sh"
+      #     cp github.Pods-tone_hunter-frameworks.sh "ios/Pods/Target Support Files/Pods-tone_hunter/Pods-tone_hunter-frameworks.sh"
+      #     cat -n "ios/Pods/Target Support Files/Pods-tone_hunter/Pods-tone_hunter-frameworks.sh"
+      #     chmod +x "ios/Pods/Target Support Files/Pods-tone_hunter/Pods-tone_hunter-frameworks.sh"
 
       - name: Build IPA with Fastlane
         env:

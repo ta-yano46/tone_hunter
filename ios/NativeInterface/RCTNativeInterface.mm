@@ -4,27 +4,43 @@
 #import <React/RCTBridge+Private.h>
 #import <React/RCTBridge.h>
 #import <React/RCTLog.h>
+#if NOMIC
+#else
 #import <AVFoundation/AVFoundation.h>
+#endif
 #import "ToneEventEmitter.h"
 #import "yin_pitch_detector.h"
+#import "math.h"
 
 using namespace facebook;
 
-
-@interface RCTNativeInterface ()<AVAudioRecorderDelegate> {
-  NSTimer *measureTimer;
-  NSInteger currentTone;
-}
-@property (nonatomic, strong) AVAudioEngine *audioEngine;
-@property (nonatomic, assign) AVAudioFrameCount bufferCapacity;
-@property (nonatomic, assign) AVAudioFrameCount writePosition;
-@property (nonatomic, strong) AVAudioPCMBuffer *circularBuffer;
-@end
+#if NOMIC
+@interface RCTNativeInterface () {
+#else
+  @interface RCTNativeInterface ()<AVAudioRecorderDelegate> {
+#endif
+    NSTimer *measureTimer;
+    NSInteger currentTone;
+    AVAudioSourceNode *sourceNode;
+    float phase;
+    float phaseIncrement;
+    BOOL isPlaying;
+  }
+#if NOMIC
+#else
+  @property (nonatomic, strong) AVAudioEngine *audioEngine;
+  @property (nonatomic, assign) AVAudioFrameCount bufferCapacity;
+  @property (nonatomic, assign) AVAudioFrameCount writePosition;
+  @property (nonatomic, strong) AVAudioPCMBuffer *circularBuffer;
+#endif
+  @end
 
 @implementation RCTNativeInterface
 
 - (instancetype)init {
   if (self = [super init]) {
+#if NOMIC
+#else
     _audioEngine = [[AVAudioEngine alloc] init];
     _bufferCapacity = 44100 * 2;
     AVAudioInputNode *inputNode = _audioEngine.inputNode;
@@ -32,9 +48,8 @@ using namespace facebook;
 
     _circularBuffer = [[AVAudioPCMBuffer alloc] initWithPCMFormat:format frameCapacity:_bufferCapacity];
 
-//    _circularBuffer = [[AVAudioPCMBuffer alloc] initWithPCMFormat:_audioEngine.inputNode.inputFormatForBus:0
-//                                                    frameCapacity:_bufferCapacity];
     _writePosition = 0;
+#endif
   }
   return self;
 }
@@ -48,6 +63,9 @@ using namespace facebook;
 }
 
 - (void)checkPermission:(RCTResponseSenderBlock)callback {
+#if NOMIC
+  callback(@[@(0), @(YES)]);
+#else
   @try {
     AVAudioSessionRecordPermission permissionStatus = [[AVAudioSession sharedInstance] recordPermission];
     RCTLogInfo(@"checkPermission IN");
@@ -79,13 +97,54 @@ using namespace facebook;
     RCTLogInfo(@"Exception occurred: %@ %@", exception.name, exception.reason);
     callback(@[@(2), @(NO)]);
   }
+#endif
 }
 
 - (NSArray<NSString *> *)supportedEvents {
   return @[@"onMeasureUpdate"];
 }
 
-
+#if NOMIC
+- (void)periodicDebugProc:(NSTimer *)timer {
+  NSLog(@"periodicDebugProc IN");
+  float buf[4410];
+  float frequency = 300.0 + (arc4random_uniform(201));
+  
+  float phaseIncrement = 2.0 * M_PI * frequency / 44100;
+  float phase = 0;
+  
+  for (int i=0;i < 4410; i++) {
+    buf[i] = sinf(phase);
+    phase += phaseIncrement;
+    if (phase > 2.0 * M_PI) {
+      phase -= 2.0 * M_PI;
+    }
+  }
+  float *p = buf;
+  // [self dumpFloatBufferAsHex:p length:48];
+  NSLog(@"periodicDebugProc");
+  float pitch = [self analyzePitchWithBuffer:p length:4410];
+  __weak __typeof(self)weakSelf = self;
+  dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+    __strong __typeof(weakSelf) strongSelf = weakSelf;
+    RCTLogInfo(@"Pitch: %f", pitch);
+    NSLog(@"dispatch_get_global_queue");
+    NSDictionary *body = @{
+      @"tone": @(strongSelf->currentTone),
+      @"pitch": @(pitch)
+    };
+    [ToneEventEmitter sendMeasureUpdate:body];
+  });
+}
+- (void)startDebugTimer {
+  measureTimer = [NSTimer scheduledTimerWithTimeInterval:0.5
+                                                  target:self
+                                                selector:@selector(periodicDebugProc:)
+                                                userInfo:nil
+                                                 repeats:YES];
+  NSLog(@"Debug Timer Start");
+}
+#endif
 - (void)measureStart:(NSInteger)tone {
   RCTLogInfo(@"[NativeInterface] measureStart called with tone: %ld", (long)tone);
   currentTone = tone;
@@ -94,7 +153,13 @@ using namespace facebook;
   [measureTimer invalidate];
   measureTimer = nil;
   
+#if NOMIC
+  dispatch_async(dispatch_get_main_queue(), ^{
+      [self startDebugTimer];
+  });
+#else
   [self startAudioEngine];
+#endif
   RCTLogInfo(@"Measure started tone:%ld", currentTone);
 }
 
@@ -102,7 +167,11 @@ using namespace facebook;
   RCTLogInfo(@"[NativeInterface] measureStop called");
   [measureTimer invalidate];
   measureTimer = nil;
+  
+#if NOMIC
+#else
   [self stopAudioEngine];
+#endif
 }
 
 - (void)confirmed:(NSInteger)order cb:(RCTResponseSenderBlock)callback {
@@ -115,6 +184,8 @@ using namespace facebook;
   }
 }
 
+#if NOMIC
+#else
 - (void)startAudioEngine {
   AVAudioInputNode *inputNode = self.audioEngine.inputNode;
   AVAudioFormat *format = [inputNode inputFormatForBus:0];
@@ -140,6 +211,7 @@ using namespace facebook;
   [self.audioEngine stop];
   RCTLogInfo(@"Audio engine stopped");
 }
+#endif
 
 - (void)dumpFloatBufferAsHex:(float *)buffer length:(NSUInteger)length{
     const uint8_t *bytePtr = (const uint8_t *)buffer;
@@ -157,6 +229,8 @@ using namespace facebook;
     RCTLogInfo(@"\n%@", output);
 }
 
+#if NOMIC
+#else
 - (void)processAudioBuffer:(AVAudioPCMBuffer *)buffer {
   AVAudioFrameCount frameLength = buffer.frameLength;
   float *sourceData = buffer.floatChannelData[0];
@@ -193,11 +267,67 @@ using namespace facebook;
     });
   }
 }
+#endif
 
-- (float)analyzePitchWithBuffer:(float *)buffer length:(int)length {
-  return yin_get_pitch(buffer, length, 44100);
+- (float)analyzePitchWithBuffer:(float *)buf length:(int)length {
+  return yin_get_pitch(buf, length, 44100);
 }
 
+  - (float)midi2freq:(int)midi {
+    return 440.0 * powf(2.0, (midi - 69) / 12.0);
+  }
+  - (void)playSample:(int)midi {
+    if (isPlaying) {
+      [self stopSample];
+    }
+    
+    float sampleRate = 44100.0;
+    float frequency = [self midi2freq:midi];
+    phaseIncrement = 2.0 * M_PI * frequency / sampleRate;
+
+    NSLog(@"playSample %f", frequency);
+    
+    sourceNode = [[AVAudioSourceNode alloc]
+                  initWithRenderBlock:^OSStatus(BOOL *isSilence,
+                                                const AudioTimeStamp *timestamp,
+                                                AVAudioFrameCount frameCount,
+                                                AudioBufferList *outputData) {
+      for (int i = 0; i < outputData->mNumberBuffers; ++i) {
+        float *buf = (float *)outputData->mBuffers[i].mData;
+        for (NSUInteger frame = 0; frame < frameCount; ++frame) {
+          buf[frame] = sinf(phase);
+          phase += phaseIncrement;
+          if (phase > 2.0 * M_PI) {
+            phase -= 2.0 * M_PI;
+          }
+        }
+      }
+      return noErr;
+    }];
+    
+    AVAudioFormat *format = [[AVAudioFormat alloc] initStandardFormatWithSampleRate:sampleRate channels:1];
+    [_audioEngine attachNode:sourceNode];
+    [_audioEngine connect:sourceNode to:_audioEngine.mainMixerNode format:format];
+    
+    NSError *error = nil;
+    if (![_audioEngine isRunning]) {
+      [_audioEngine startAndReturnError:&error];
+      if (error) {
+        NSLog(@"Engine start error: %@", error);
+        return;
+      }
+    }
+    
+    isPlaying = YES;
+  }
+  - (void)stopSample {
+    if (!isPlaying) return;
+    
+    [_audioEngine disconnectNodeInput:sourceNode];
+    [_audioEngine detachNode:sourceNode];
+    sourceNode = nil;
+    isPlaying = NO;
+  }
 
 + (NSString *)moduleName {
   return @"NativeInterface";

@@ -104,7 +104,7 @@ const MeasureScreen = ({ navigation, route }) => {
     }
 
 
-    if (device == null) {
+    if (photo && (device == null)) {
         return <Text>Initializing the camera......</Text>
     }
 
