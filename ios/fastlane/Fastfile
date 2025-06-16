@@ -5,15 +5,10 @@ lane :build_only do
     scheme: "tone_hunter",
     workspace: "tone_hunter.xcworkspace",
     export_method: "app-store",
-    export_options: {
-      provisioningProfiles: {
-        "org.reactjs.native.example.tone-hunter" => "ToneHunter Release Profile"
-      },
-      signingStyle: "manual",
-      teamID: ENV["DEVELOPMENT_TEAM"]
-    },
+    export_options: "ExportOptions.plist",
     clean: true,
     silent: false,
-    xcargs: "-verbose",
+    xcargs: "-verbose -allowProvisioningUpdates",
+    disable_xcpretty: true
   )
 end

@@ -87,6 +87,7 @@ jobs:
           PROVISIONING_PROFILE_SPECIFIER: "ToneHunter Release Profile"
           DEVELOPMENT_TEAM: "599S4ZJU32"
           PRODUCT_BUNDLE_IDENTIFIER: "org.reactjs.native.example.tone-hunter"
+          binary_archs: "arm64"
         run: |
           cd ios
           bundle exec fastlane build_only
