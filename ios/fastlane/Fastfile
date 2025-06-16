@@ -8,7 +8,7 @@ lane :build_only do
     export_options: "ExportOptions.plist",
     clean: true,
     silent: false,
-    xcargs: "-verbose -allowProvisioningUpdates",
+    xcargs: "-verbose",
     disable_xcpretty: true
   )
 end
