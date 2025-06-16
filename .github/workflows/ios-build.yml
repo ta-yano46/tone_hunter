@@ -31,7 +31,7 @@ jobs:
 
       - name: Download Apple G3 certificate
         run: |
-          wget https://developer.apple.com/certificationauthority/AppleWWDRCAG3.cer -O AppleWWDRCAG3.cer
+          curl -O https://www.apple.com/certificateauthority/AppleWWDRCAG3.cer
 
       - name: Import certificate
         run: |
