@@ -29,10 +29,17 @@ jobs:
           cat ios_dist.p12 | wc
           md5 ios_dist.p12
 
+      - name: Download Apple G3 certificate
+        run: |
+          wget https://developer.apple.com/certificationauthority/AppleWWDRCAG3.cer -O AppleWWDRCAG3.cer
+
       - name: Import certificate
         run: |
           echo "🔐 Creating keychain..."
           mkdir -p ~/Library/Keychains
+          if [ -f ~/Library/Keychains/build.keychain-db ]; then
+            security delete-keychain ~/Library/Keychains/build.keychain-db
+          fi
           security create-keychain -p "${{secrets.IOS_DIST_CERT_PASSWORD}}" ~/Library/Keychains/build.keychain-db
 
           echo "🔑 Setting as default keychain..."
@@ -42,16 +49,14 @@ jobs:
           security unlock-keychain -p "${{secrets.IOS_DIST_CERT_PASSWORD}}" ~/Library/Keychains/build.keychain-db
 
           echo "📦 Importing certificate..."
+          security import AppleWWDRCAG4.cer -k ~/Library/Keychains/build.keychain-db -T /usr/bin/codesign
           security import ios_dist.p12 \
             -k ~/Library/Keychains/build.keychain-db \
             -P "${{secrets.IOS_DIST_CERT_PASSWORD}}" \
             -T /usr/bin/codesign
 
           echo "🧩 Setting key partition list..."
-          security set-key-partition-list \
-            -S "apple-tool:,apple:" \
-            -s -k "${{secrets.IOS_DIST_CERT_PASSWORD}}" \
-            ~/Library/Keychains/build.keychain-db
+          security set-key-partition-list -S "apple-tool:,apple:," -s -k "${{secrets.IOS_DIST_CERT_PASSWORD}}" ~/Library/Keychains/build.keychain-db
 
           security list-keychains -s ~/Library/Keychains/build.keychain-db
 
@@ -112,3 +117,9 @@ jobs:
         with:
           name: tone_hunter.ipa
           path: ios/build/ipa/tone_hunter.ipa
+
+
+      - name: Revert Key-Chain
+        run: |
+          security default-keychain -s login.keychain-db
+          security list-keychains -s login.keychain-db
