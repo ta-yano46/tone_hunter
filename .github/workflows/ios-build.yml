@@ -29,10 +29,6 @@ jobs:
           cat ios_dist.p12 | wc
           md5 ios_dist.p12
 
-      - name: Download Apple G3 certificate
-        run: |
-          curl -O https://www.apple.com/certificateauthority/AppleWWDRCAG3.cer
-
       - name: Import certificate
         run: |
           echo "🔐 Creating keychain..."
@@ -49,7 +45,7 @@ jobs:
           security unlock-keychain -p "${{secrets.IOS_DIST_CERT_PASSWORD}}" ~/Library/Keychains/build.keychain-db
 
           echo "📦 Importing certificate..."
-          security import AppleWWDRCAG4.cer -k ~/Library/Keychains/build.keychain-db -T /usr/bin/codesign
+          security import .github/certificates/AppleWWDRCAG3.cer -k ~/Library/Keychains/build.keychain-db -T /usr/bin/codesign
           security import ios_dist.p12 \
             -k ~/Library/Keychains/build.keychain-db \
             -P "${{secrets.IOS_DIST_CERT_PASSWORD}}" \
