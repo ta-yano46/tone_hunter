@@ -91,6 +91,13 @@ jobs:
           cd ios
           bundle exec fastlane build_only
 
+      - name: Upload Xcode Gym Log
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: xcode-gym-log
+          path: /Users/runner/Library/Logs/gym/tone_hunter-tone_hunter.log
+
       - name: Upload IPA artifact
         uses: actions/upload-artifact@v4
         with:
