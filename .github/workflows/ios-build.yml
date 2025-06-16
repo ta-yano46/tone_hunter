@@ -47,15 +47,13 @@ jobs:
 
           security import .github/certificates/AppleWWDRCAG3.cer -k ~/Library/Keychains/build.keychain-db -T /usr/bin/codesign
 
-          echo "🧩 Setting key partition list..."
-          security set-key-partition-list -S "apple-tool:,apple:," -s -k "${{secrets.IOS_DIST_CERT_PASSWORD}}" ~/Library/Keychains/build.keychain-db
-
           echo "📦 Importing certificate..."
           security import ios_dist.p12 \
             -k ~/Library/Keychains/build.keychain-db \
             -P "${{secrets.IOS_DIST_CERT_PASSWORD}}" \
             -T /usr/bin/codesign
 
+          echo "🧩 Setting key partition list..."
           security set-key-partition-list -S "apple-tool:,apple:," -s -k "${{secrets.IOS_DIST_CERT_PASSWORD}}" ~/Library/Keychains/build.keychain-db
 
           echo "Confirm"
