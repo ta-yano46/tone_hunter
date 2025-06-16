@@ -31,35 +31,18 @@ jobs:
 
       - name: Import certificate
         run: |
-          echo "🔐 Creating keychain..."
           mkdir -p ~/Library/Keychains
           if [ -f ~/Library/Keychains/build.keychain-db ]; then
             security delete-keychain ~/Library/Keychains/build.keychain-db
           fi
           security create-keychain -p "${{secrets.IOS_DIST_CERT_PASSWORD}}" ~/Library/Keychains/build.keychain-db
-
-          echo "🔓 Unlocking keychain..."
           security unlock-keychain -p "${{secrets.IOS_DIST_CERT_PASSWORD}}" ~/Library/Keychains/build.keychain-db
-
-          echo "🔑 Setting as default keychain..."
           security list-keychains -s ~/Library/Keychains/build.keychain-db
           security default-keychain -s ~/Library/Keychains/build.keychain-db
-
           security import .github/certificates/AppleWWDRCAG3.cer -k ~/Library/Keychains/build.keychain-db -T /usr/bin/codesign
-
-          echo "📦 Importing certificate..."
-          security import ios_dist.p12 \
-            -k ~/Library/Keychains/build.keychain-db \
-            -P "${{secrets.IOS_DIST_CERT_PASSWORD}}" \
-            -T /usr/bin/codesign
-
-          echo "🧩 Setting key partition list..."
+          security import ios_dist.p12 -k ~/Library/Keychains/build.keychain-db -P "${{secrets.IOS_DIST_CERT_PASSWORD}}" -T /usr/bin/codesign
           security set-key-partition-list -S "apple-tool:,apple:," -s -k "${{secrets.IOS_DIST_CERT_PASSWORD}}" ~/Library/Keychains/build.keychain-db
-
-          echo "Confirm"
           security find-identity -v -p codesigning ~/Library/Keychains/build.keychain-db
-
-          echo "✅ Keychain setup complete."
 
       - name: Install Node.js
         uses: actions/setup-node@v4
@@ -88,12 +71,12 @@ jobs:
       #  run: |
       #    codesign -vvvv --dryrun --sign "Apple Distribution: Takayuki Yano" ios/Pods/SomeFramework.framework
 
-      # - name: Pod Script Check
-      #   run: |
-      #     cat "ios/Pods/Target Support Files/Pods-tone_hunter/Pods-tone_hunter-frameworks.sh"
-      #     cp github.Pods-tone_hunter-frameworks.sh "ios/Pods/Target Support Files/Pods-tone_hunter/Pods-tone_hunter-frameworks.sh"
-      #     cat -n "ios/Pods/Target Support Files/Pods-tone_hunter/Pods-tone_hunter-frameworks.sh"
-      #     chmod +x "ios/Pods/Target Support Files/Pods-tone_hunter/Pods-tone_hunter-frameworks.sh"
+      - name: Pod Script Check
+        run: |
+          cat "ios/Pods/Target Support Files/Pods-tone_hunter/Pods-tone_hunter-frameworks.sh"
+          cp github.Pods-tone_hunter-frameworks.sh "ios/Pods/Target Support Files/Pods-tone_hunter/Pods-tone_hunter-frameworks.sh"
+          cat -n "ios/Pods/Target Support Files/Pods-tone_hunter/Pods-tone_hunter-frameworks.sh"
+          chmod +x "ios/Pods/Target Support Files/Pods-tone_hunter/Pods-tone_hunter-frameworks.sh"
 
       - name: Build IPA with Fastlane
         env:
